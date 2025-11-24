@@ -203,13 +203,25 @@
       const data = snapshot.val();
       if (!data) return;
 
-      // Met à jour les images
-      topImg1.src = "topslides/" + data.mult + ".gif";
-      topImg2.src = "topslides/" + data.game + ".png";
+      // Normalise les valeurs pour gérer "None" / "none"
+      const gameVal = (data.game || "").toLowerCase();
+      const multVal = (data.mult || "").toLowerCase();
 
       // Vérifie si le trigger a changé
-      if (data.trigger && data.trigger !== lastTriggerValue) {
-        lastTriggerValue = data.trigger;
+      const triggerChanged = data.trigger && data.trigger !== lastTriggerValue;
+      lastTriggerValue = data.trigger; // on mémorise toujours le trigger
+
+      // Si game ou mult vaut "none", on ne fait rien
+      if (gameVal === "none" || multVal === "none") {
+        topContainer.classList.remove("show"); // s'assure qu'il est caché
+        return; // mais trigger est mémorisé
+      }
+
+      // Affiche le top-slider uniquement si trigger a changé
+      if (triggerChanged) {
+        // Met à jour les images
+        topImg1.src = "topslides/" + data.mult + ".gif";
+        topImg2.src = "topslides/" + data.game + ".png";
 
         // Affiche le top-slider
         topContainer.classList.add("show");
@@ -221,6 +233,5 @@
       }
     });
   </script>
-
 </body>
 </html>
