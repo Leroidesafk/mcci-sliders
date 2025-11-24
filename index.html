@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>OBS Slideshow</title>
+  <title>MCCI Sliders</title>
+
   <style>
     body {
       margin: 0;
@@ -11,6 +12,9 @@
       background: transparent;
     }
 
+    /* ===========================
+      SLIDER LATERAL (DROITE)
+      =========================== */
     #container {
       position: absolute;
       right: 0;
@@ -41,21 +45,101 @@
     .slide.active {
       right: 0;
     }
+
+    /* ===========================
+      TOP SLIDER (DESCEND DU HAUT)
+      =========================== */
+    #top-slider-container {
+      position: absolute;
+      top: 0;
+      /* Décaler à gauche du slider droit */
+      right: 35vw; /* <-- ajoute cette ligne, remplace right: 0 */
+
+      width: 612px;
+      height: 128px;
+
+      overflow: visible;
+
+      transform: translateY(-130%);  /* caché vers le haut */
+      transition: transform 0.8s ease-in-out;
+      z-index: 99999;
+    }
+
+    #top-slider-container.show {
+      transform: translateY(0);       /* descend */
+    }
+
+    /* zone de superposition */
+    .top-slide-wrapper {
+      position: relative;
+      width: 612px;     /* match exact */
+      height: 128px;
+    }
+
+    /* images superposées pixel perfect */
+    .top-slide-img {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      width: 612px;     /* ⬅ aucune déformation */
+      height: 128px;
+
+      object-fit: none;       /* pas de scaling */
+      object-position: right top;
+
+      /* anti-flou pixel art */
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- SLIDER PRINCIPAL -->
   <div id="container"></div>
 
-  <script>
+  <!-- TOP SLIDER -->
+  <div id="top-slider-container">
+    <div class="top-slide-wrapper">
+      <img id="top-img-1" class="top-slide-img" src="">
+      <img id="top-img-2" class="top-slide-img" src="">
+    </div>
+  </div>
 
+  <!-- ===========================
+       FIREBASE + LOGIQUE
+       =========================== -->
+  <script type="module">
+    /* =============================================================
+      🔥 1 — IMPORT FIREBASE
+      ============================================================= */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFIMChxjUJ62UETvb8j4tpS1eWuLl4KC4",
+      authDomain: "mcci-sliders.firebaseapp.com",
+      databaseURL: "https://mcci-sliders-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mcci-sliders",
+      storageBucket: "mcci-sliders.firebasestorage.app",
+      messagingSenderId: "417632457228",
+      appId: "1:417632457228:web:cb61fc91cbd85c0f3f9429",
+      measurementId: "G-7C7N042H6S"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+
+    /* =============================================================
+      🔄 2 — SLIDER DE DROITE
+      ============================================================= */
     let index = 0;
-
-    // Pause après le cycle (EN MINUTES)
     const pauseAfterCycleMinutes = 1.5;
     const pauseAfterCycle = pauseAfterCycleMinutes * 60 * 1000;
 
-    // Nouvelle structure JSON (DURÉE EN SECONDES)
     const slidesConfig = [
       { src: "images/1.png", duration: 10 },
       { src: "images/2.png", duration: 10 },
@@ -70,32 +154,30 @@
 
     const container = document.getElementById("container");
 
-    // Création des slides
-    slidesConfig.forEach((item) => {
+    // Crée les slides
+    slidesConfig.forEach(item => {
       const div = document.createElement("div");
       div.className = "slide";
 
       const imageElement = document.createElement("img");
       imageElement.src = item.src;
-
       div.appendChild(imageElement);
+
       container.appendChild(div);
     });
 
     const slides = document.querySelectorAll(".slide");
 
+    // Fonction pour faire défiler les slides
     function nextSlide() {
       if (index > 0) slides[index - 1].classList.remove("active");
 
       if (index < slides.length) {
         slides[index].classList.add("active");
 
-        // Conversion automatique SECONDES → MILLISECONDES
         const durationMs = slidesConfig[index].duration * 1000;
-
         index++;
         setTimeout(nextSlide, durationMs);
-
       } else {
         slides.forEach(slide => slide.classList.remove("active"));
         index = 0;
@@ -104,7 +186,41 @@
     }
 
     nextSlide();
-  </script>
-</body>
 
+
+    /* =============================================================
+      🔽 3 — TOP SLIDER EN TEMPS RÉEL (FIREBASE) AVEC TRIGGER
+      ============================================================= */
+    const topContainer = document.getElementById("top-slider-container");
+    const topImg1 = document.getElementById("top-img-1");
+    const topImg2 = document.getElementById("top-img-2");
+
+    let lastTriggerValue = null; // mémorise la dernière valeur du trigger
+
+    const topSliderRef = ref(db, "topSlider");
+
+    onValue(topSliderRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      // Met à jour les images
+      topImg1.src = "topslides/" + data.mult + ".gif";
+      topImg2.src = "topslides/" + data.game + ".png";
+
+      // Vérifie si le trigger a changé
+      if (data.trigger && data.trigger !== lastTriggerValue) {
+        lastTriggerValue = data.trigger;
+
+        // Affiche le top-slider
+        topContainer.classList.add("show");
+
+        // Cache le top-slider après 5 secondes
+        setTimeout(() => {
+          topContainer.classList.remove("show");
+        }, 5000);
+      }
+    });
+  </script>
+
+</body>
 </html>
