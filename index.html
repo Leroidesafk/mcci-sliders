@@ -195,6 +195,28 @@
     const topImg1 = document.getElementById("top-img-1");
     const topImg2 = document.getElementById("top-img-2");
 
+    const preloadedImages = [
+      "topslides/none.gif",
+      "topslides/none.png",
+      "topslides/x1.gif",
+      "topslides/x1-5.gif",
+      "topslides/x2.gif",
+      "topslides/x2-5.gif",
+      "topslides/x3.gif",
+      "topslides/x3-5.gif",
+      "topslides/bb.png",
+      "topslides/hitw.png",
+      "topslides/pw.png",
+      "topslides/rs.png",
+      "topslides/sb.png",
+      "topslides/tgttos.png"
+    ];
+
+    preloadedImages.forEach(url => {
+      const img = new Image();
+      img.src = url;
+    });
+
     let lastTriggerValue = null; // mémorise la dernière valeur du trigger
 
     const topSliderRef = ref(db, "topSlider");
@@ -223,13 +245,9 @@
         topImg1.src = "topslides/" + data.mult + ".gif";
         topImg2.src = "topslides/" + data.game + ".png";
 
-        // Affiche le top-slider
+        // Affiche le top-slider seulement si trigger a changé et valeurs valides
         topContainer.classList.add("show");
-
-        // Cache le top-slider après 5 secondes
-        setTimeout(() => {
-          topContainer.classList.remove("show");
-        }, 5000);
+        setTimeout(() => topContainer.classList.remove("show"), 5000);
       }
     });
   </script>
