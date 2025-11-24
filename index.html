@@ -207,7 +207,7 @@
       "topslides/bb.png",
       "topslides/hitw.png",
       "topslides/pw.png",
-      "topslides/rs.png",
+      "topslides/rsr.png",
       "topslides/sb.png",
       "topslides/tgttos.png"
     ];
@@ -242,8 +242,8 @@
       // Affiche le top-slider uniquement si trigger a changé
       if (triggerChanged) {
         // Met à jour les images
-        topImg1.src = "topslides/" + data.mult + ".gif";
-        topImg2.src = "topslides/" + data.game + ".png";
+        topImg1.src = "topslides/" + (data.mult || "").toLowerCase() + ".gif";
+        topImg2.src = "topslides/" + (data.game || "").toLowerCase() + ".png";
 
         // Affiche le top-slider seulement si trigger a changé et valeurs valides
         topContainer.classList.add("show");
