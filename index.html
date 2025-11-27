@@ -131,9 +131,15 @@
     }
     .second-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* 2 horizontal columns */
-      grid-template-rows: repeat(2, 1fr);
       gap: 10px;
+      grid-auto-rows: 1fr;
+    }
+    .second-grid.two-rows {
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .second-grid.one-row {
+      grid-template-rows: 1fr;
     }
     .cell {
       display: flex;
@@ -363,13 +369,14 @@
     let lastZTrigger = null;
     let lastScores = null; // stocke les scores mais n'affiche pas
 
-    // Écoute des scores mais **ne rien afficher au chargement**
+    // Lecture des scores (mais pas d'affichage encore)
     onValue(scoresRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
 
+      // IGNORER z_trigger + ignorer les équipes en -1
       lastScores = Object.entries(data)
-        .filter(([key]) => key !== "z_trigger")
+        .filter(([key, val]) => key !== "z_trigger" && Number(val) !== -1)
         .map(([faction, value]) => ({
           faction,
           value: Number(value) || 0
@@ -385,10 +392,23 @@
       const changed = value !== lastZTrigger;
       lastZTrigger = value;
 
-      if (!changed || !lastScores) return;
-
-      // Remplissage de la grille
+      if (!changed || !lastScores) return
+      ;
+      // VIDER LA GRILLE
       grid.innerHTML = "";
+      const count = lastScores.length;
+      let cols = Math.ceil(count / 2);
+      if (count <= 5) {
+        grid.style.gridTemplateColumns = `repeat(${count}, 1fr)`;
+        grid.classList.add("one-row");
+        grid.classList.remove("two-rows");
+      } else {
+        const top = cols;
+        const bot = count - cols;
+        grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        grid.classList.add("two-rows");
+        grid.classList.remove("one-row");
+      }
       lastScores.forEach(item => {
         const cell = document.createElement("div");
         cell.className = "cell";
@@ -398,11 +418,9 @@
         `;
         grid.appendChild(cell);
       });
-
-      // Animation d'apparition
       leaderboardContainer.classList.add("show");
 
-      // Disparaît après 10 secondes
+      // Disparition
       setTimeout(() => {
         leaderboardContainer.classList.remove("show");
       }, 10000);
