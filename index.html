@@ -6,6 +6,19 @@
   <title>MCCI Sliders</title>
 
   <style>
+    :root {
+      --scores-border: #000;
+      --scores-main-color: #294683;
+      --scores-main-color-light: #3B5B9D;
+      --scores-main-color-shadow: #1B335E;
+      --scores-second-color: #132544;
+    }
+    @font-face {
+      font-family: 'Minecraftia';
+      src: url('./font/minecraftia.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
     body {
       margin: 0;
       overflow: hidden;
@@ -92,8 +105,74 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
+
+    #second-top-slider-container {
+      position: absolute;
+      top: 0;
+      right: 35vw;
+      width: 700px;
+      height: auto;
+
+      box-shadow: inset 0 -4px 0 0 var(--scores-main-color-shadow),
+                  inset 4px 0 0 0 var(--scores-main-color-light),
+                  inset -4px 0 0 0 var(--scores-main-color-shadow),
+                  inset 0 4px 0 0 var(--scores-main-color-light);
+
+      background: var(--scores-main-color);
+      padding: 10px;
+      border-radius: 0px;
+      border: 4px solid var(--scores-border);
+
+      /* 🌟 initialement invisible et déplacé */
+      transform: translateY(-150%);
+      opacity: 0;
+      transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+      z-index: 99999;
+      pointer-events: none; /* pour ne pas interférer */
+    }
+
+    #second-top-slider-container.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .second-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr); /* 2 horizontal columns */
+      grid-template-rows: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .cell {
+      display: flex;
+      align-items: center;
+      background: var(--scores-second-color);
+      box-shadow: inset 0 6px 0 0 rgba(0, 0, 0, .3);
+      justify-content: flex-start;
+      gap: 15px;
+      padding: 5px 10px;
+    }
+    .cell-value {
+      font-family: 'Minecraftia', sans-serif;
+      line-height: 1;
+      font-size: 24px;
+      margin-top: 24px;
+      color: white;
+    }
+    .cell-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
   </style>
 </head>
+
+
+
+
+
+
 
 <body>
 
@@ -107,10 +186,61 @@
       <img id="top-img-2" class="top-slide-img" src="">
     </div>
   </div>
+  <div id="second-top-slider-container">
+    <div class="second-grid">
+      <div class="cell">
+      <img src="factions/red.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/orange.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/yellow.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/lime.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/green.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/cyan.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/aqua.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/blue.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/purple.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+      <div class="cell">
+      <img src="factions/pink.png" class="cell-logo" />
+      <div class="cell-value">0</div>
+      </div>
+    </div>
+  </div>
 
-  <!-- ===========================
-       FIREBASE + LOGIQUE
-       =========================== -->
+
+
+
+
+
+
+
+
+
+
   <script type="module">
     /* =============================================================
       🔥 1 — IMPORT FIREBASE
@@ -131,7 +261,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
 
     /* =============================================================
       🔄 2 — SLIDER DE DROITE
@@ -187,37 +316,14 @@
 
     nextSlide();
 
-
     /* =============================================================
       🔽 3 — TOP SLIDER EN TEMPS RÉEL (FIREBASE) AVEC TRIGGER
       ============================================================= */
     const topContainer = document.getElementById("top-slider-container");
-    const topImg1 = document.getElementById("top-img-1");
-    const topImg2 = document.getElementById("top-img-2");
+    const topImg1 = document.getElementById("top-img-1"); // multiplier
+    const topImg2 = document.getElementById("top-img-2"); // game
 
-    const preloadedImages = [
-      "topslides/none.gif",
-      "topslides/none.png",
-      "topslides/x1.gif",
-      "topslides/x1-5.gif",
-      "topslides/x2.gif",
-      "topslides/x2-5.gif",
-      "topslides/x3.gif",
-      "topslides/x3-5.gif",
-      "topslides/bb.png",
-      "topslides/hitw.png",
-      "topslides/pw.png",
-      "topslides/rsr.png",
-      "topslides/sb.png",
-      "topslides/tgttos.png"
-    ];
-
-    preloadedImages.forEach(url => {
-      const img = new Image();
-      img.src = url;
-    });
-
-    let lastTriggerValue = null; // mémorise la dernière valeur du trigger
+    let lastTopTrigger = null; // mémorise le dernier trigger
 
     const topSliderRef = ref(db, "topSlider");
 
@@ -225,30 +331,88 @@
       const data = snapshot.val();
       if (!data) return;
 
-      // Normalise les valeurs pour gérer "None" / "none"
       const gameVal = (data.game || "").toLowerCase();
       const multVal = (data.mult || "").toLowerCase();
 
-      // Vérifie si le trigger a changé
-      const triggerChanged = data.trigger && data.trigger !== lastTriggerValue;
-      lastTriggerValue = data.trigger; // on mémorise toujours le trigger
+      // Détecte le changement de trigger
+      const triggerChanged = data.trigger && data.trigger !== lastTopTrigger;
+      lastTopTrigger = data.trigger;
 
-      // Si game ou mult vaut "none", on ne fait rien
+      // Si "none", on cache le slider
       if (gameVal === "none" || multVal === "none") {
-        topContainer.classList.remove("show"); // s'assure qu'il est caché
-        return; // mais trigger est mémorisé
+        topContainer.classList.remove("show");
+        return;
       }
 
-      // Affiche le top-slider uniquement si trigger a changé
+      // Affichage uniquement si trigger change
       if (triggerChanged) {
-        // Met à jour les images
-        topImg1.src = "topslides/" + (data.mult || "").toLowerCase() + ".gif";
-        topImg2.src = "topslides/" + (data.game || "").toLowerCase() + ".png";
+        topImg1.src = "topslides/" + multVal + ".gif"; // multiplier
+        topImg2.src = "topslides/" + gameVal + ".png"; // game
 
-        // Affiche le top-slider seulement si trigger a changé et valeurs valides
+        // Animation d'apparition
         topContainer.classList.add("show");
-        setTimeout(() => topContainer.classList.remove("show"), 10000);
+
+        // Disparaît après 10 secondes
+        setTimeout(() => {
+          topContainer.classList.remove("show");
+        }, 10000);
       }
+    });
+
+    /* =============================================================
+      🔽 4 — LEADERBOARD SCORES (AFFICHAGE SUR TRIGGER)
+      ============================================================= */
+    const scoresRef = ref(db, "scores");
+    const grid = document.querySelector(".second-grid");
+    const leaderboardContainer = document.getElementById("second-top-slider-container");
+    const zTriggerRef = ref(db, "scores/z_trigger");
+
+    let lastZTrigger = null;
+    let lastScores = null; // stocke les scores mais n'affiche pas
+
+    // Écoute des scores mais **ne rien afficher au chargement**
+    onValue(scoresRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      lastScores = Object.entries(data)
+        .filter(([key]) => key !== "z_trigger")
+        .map(([faction, value]) => ({
+          faction,
+          value: Number(value) || 0
+        }))
+        .sort((a, b) => b.value - a.value);
+    });
+
+    // Déclenchement uniquement sur changement du trigger
+    onValue(zTriggerRef, (snapshot) => {
+      const value = snapshot.val();
+      if (!value) return;
+
+      const changed = value !== lastZTrigger;
+      lastZTrigger = value;
+
+      if (!changed || !lastScores) return;
+
+      // Remplissage de la grille
+      grid.innerHTML = "";
+      lastScores.forEach(item => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerHTML = `
+          <img src="factions/${item.faction}.png" class="cell-logo" />
+          <div class="cell-value">${item.value}</div>
+        `;
+        grid.appendChild(cell);
+      });
+
+      // Animation d'apparition
+      leaderboardContainer.classList.add("show");
+
+      // Disparaît après 10 secondes
+      setTimeout(() => {
+        leaderboardContainer.classList.remove("show");
+      }, 10000);
     });
   </script>
 </body>
